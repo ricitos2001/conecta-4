@@ -1,7 +1,7 @@
 import socket
 
 
-def extract_ip():
+def extract_ip(): #conseguimos nuestra ip
     st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         st.connect(("10.255.255.255", 1))
