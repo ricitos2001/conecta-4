@@ -1,3 +1,5 @@
+# -*- codigo: utf-16 -*-
+
 import random
 from copy import deepcopy
 from colorama import init, Fore, Style
