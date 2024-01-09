@@ -36,21 +36,15 @@ Funciones:
 
 ini() -- Pide al usuario el host y puerto.
 
-crearSocket() -- Retorna un nuevo socket siguiendo el esquema del
-                 protocolo TCP
+crearSocket() -- Retorna un nuevo socket siguiendo el esquema del protocolo TCP
 
 conectarse (host, port, s) -- Su nombre lo dice todo
 
-intentoConexion(host, port, s) -- Si el puerto no esta tomado y
-                                  la direccion sumistrada es correcta
-                                  se conectara al servidor
+intentoConexion(host, port, s) -- Si el puerto no esta tomado y la direccion sumistrada es correcta se conectara al servidor
 
-enviar(s) -- Gestiona los mensajes que seran enviados al servidor.
-             Esta funcion llama a recibir una vez que el mensaje es
-             enviado al cliente
+enviar(s) -- Gestiona los mensajes que seran enviados al servidor. Esta funcion llama a recibir una vez que el mensaje es enviado al cliente
 
-recibir(s) -- Hilo que se ejecuta una vez y muere. Recibe los mensajes
-              del servidor
+recibir(s) -- Hilo que se ejecuta una vez y muere. Recibe los mensajes del servidor
 
 recibirEspecial(s) -- Recibe un numero. Este sera el numero del cliente
 
@@ -122,9 +116,9 @@ def recibir(s):
     while True:
 
         try:
-          reply = s.recv(2048)
-          print(reply.decode("UTF-8"))
-          break
+            reply = s.recv(2048)
+            print(reply.decode("UTF-8"))
+            break
 
 
         except:
