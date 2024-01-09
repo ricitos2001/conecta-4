@@ -1,3 +1,5 @@
+# -*- codigo: utf-16 -*-
+
 import socket
 
 HOST = "172.26.2.205" #dirección servidor

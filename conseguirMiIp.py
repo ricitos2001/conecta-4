@@ -1,3 +1,5 @@
+# -*- codigo: utf-16 -*-
+
 '''from netifaces import interfaces, ifaddresses, AF_INET
 
 for ifaceName in interfaces():
