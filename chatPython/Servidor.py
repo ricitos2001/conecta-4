@@ -36,21 +36,17 @@ Funciones:
 
 ini() -- Pide al usuario el host y puerto.
 
-crearSocket() -- Retorna un nuevo socket siguiendo el esquema del
-                 protocolo TCP
+crearSocket() -- Retorna un nuevo socket siguiendo el esquema del protocolo TCP
 
-ligarSocket(s, host, port) -- Intenta ligar un socket a los parametros
-                              host y port
+ligarSocket(s, host, port) -- Intenta ligar un socket a los parametros host y port
 
-conexiones(s) -- Espera por la conexion de clientes externos. Retorna
-                 la direccion del cliente en una tupla
+conexiones(s) -- Espera por la conexion de clientes externos. Retorna la direccion del cliente en una tupla
 
 enviar(conn) -- Envia un mensaje codificado a la direccion del cliente 1
 
 enviar2(conn) -- Envia un mensaje codificado a la direccion del cliente 2
 
-recibir(conn) -- Gestiona los mensajes recibidos de los distintos clientes.
-                 Llama a la funcion enviar una vez que recibe mensajes
+recibir(conn) -- Gestiona los mensajes recibidos de los distintos clientes. Llama a la funcion enviar una vez que recibe mensajes
 
 enviarEspecial(conn) -- El servidor asigna un numero y lo envia al cliente
                         respectivo
@@ -178,8 +174,7 @@ def main():
     ligarSocket(s, host,port)
     s.listen(2)     # Espero 2 clientes
 
-    print("\nW A R N I N G : THE SERVER IS A SLAVE. DON'T "
-          "WRITE IF THE SERVER DOESN'T HAVE ANY MESSAGE TO RESPONSE")
+    print("\nW A R N I N G : THE SERVER IS A SLAVE. DON'T WRITE IF THE SERVER DOESN'T HAVE ANY MESSAGE TO RESPONSE")
     print("\nWaiting for clients")
 
     conn,addr = conexiones(s)
