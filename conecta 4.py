@@ -3,6 +3,13 @@ import sys
 import random
 from colorama import init, Fore, Style
 
+ESPACIO_VACIO = " "
+COLOR_1 = "x"
+COLOR_2 = "o"
+JUGADOR_1 = 1
+JUGADOR_2 = 2
+CONECTA = 4
+
 init()
 
 def checkear_version_de_python():
@@ -23,39 +30,162 @@ def borrar_consola():
     elif os.name == "ce" or os.name == "nt" or os.name == "dos":
         os.system ("cls")
 
-ESPACIO_VACIO = " "
-COLOR_1 = "x"
-COLOR_2 = "o"
-JUGADOR_1 = 1
-JUGADOR_2 = 2
-CONECTA = 4
+def crear_tablero():
+    tablero = []
+    filas=6
+    columnas=7
+    for fila in range(filas):
+        tablero.append([])
+        for columna in range(columnas):
+            tablero[fila].append(ESPACIO_VACIO)
+    return tablero
 
-def volver_a_jugar():
+def jugador_vs_jugador(tablero):
+    jugador_actual = elegir_jugador_al_azar()
     while True:
-        eleccion = input("¿Quieres volver a jugar? [s/n] ").lower()
-        if eleccion == "s":
-            borrar_consola()
-            return True
-        elif eleccion == "n":
-            print("adios")
-            os.system("pause")
-            borrar_consola()
-            return False
+        imprimir_tablero(tablero)
+        imprimir_tiradas_faltantes(tablero)
+        columna = imprimir_y_solicitar_turno(jugador_actual, tablero)
+        pieza_colocada = colocar_pieza(columna, jugador_actual, tablero)
+        if not pieza_colocada:
+            print("No se puede colocar en esa columna")
+        ha_ganado = comprobar_ganador(jugador_actual, tablero)
+        if ha_ganado:
+            imprimir_tablero(tablero)
+            felicitar_jugador(jugador_actual)
+            break
+        elif es_empate(tablero):
+            imprimir_tablero(tablero)
+            indicar_empate()
+            break
+        else:
+            if jugador_actual == JUGADOR_1:
+                jugador_actual = JUGADOR_2
+            else:
+                jugador_actual = JUGADOR_1
 
-def indicar_empate():
-    print("Empate")
+def elegir_jugador_al_azar():
+    return random.choice([JUGADOR_1, JUGADOR_2])
 
-def es_empate(tablero):
+def imprimir_tablero(tablero):
+    # Imprime números de columnas
+    print("|", end="")
+    for f in range(1, len(tablero[0]) + 1):
+        print(f, end="|")
+    print("")
+    # Datos
+    for fila in tablero:
+        print("|", end="")
+        for valor in fila:
+            color_terminal = Fore.GREEN
+            if valor == COLOR_2:
+                color_terminal = Fore.RED
+            print(color_terminal + valor, end="")
+            print(Style.RESET_ALL, end="")
+            print("|", end="")
+        print("")
+    # Pie
+    print("+", end="")
+    for f in range(1, len(tablero[0]) + 1):
+        print("-", end="+")
+    print("")
+
+def imprimir_tiradas_faltantes(tablero):
+    print("Tiradas faltantes: " + str(obtener_tiradas_faltantes(tablero)))
+
+def obtener_tiradas_faltantes(tablero):
+    tiradas = 0
     for columna in range(len(tablero[0])):
-        if obtener_fila_valida_en_columna(columna, tablero) != -1:
-            return False
+        tiradas += obtener_tiradas_faltantes_en_columna(columna, tablero)
+    return tiradas
+
+def obtener_tiradas_faltantes_en_columna(columna, tablero):
+    indice = len(tablero) - 1
+    tiradas = 0
+    while indice >= 0:
+        if tablero[indice][columna] == ESPACIO_VACIO:
+            tiradas += 1
+        indice -= 1
+    return tiradas
+
+def imprimir_y_solicitar_turno(turno, tablero):
+    print(f"Jugador 1: {COLOR_1} | Jugador 2: {COLOR_2}")
+    if turno == JUGADOR_1:
+        print(f"Turno del jugador 1 ({COLOR_1})")
+    else:
+        print(f"Turno del jugador 2 ({COLOR_2})")
+    return solicitar_columna(tablero)
+
+def solicitar_columna(tablero):
+    """
+    Solicita la columna y devuelve la columna ingresada -1 para ser usada fácilmente como índice
+    """
+    while True:
+        try:
+            jugada = int(input("Ingresa el numero de la columna para colocar la pieza: "))    
+            if jugada <= 0 or jugada > len(tablero[0]):
+                print("Columna no válida")
+            elif tablero[0][jugada - 1] != ESPACIO_VACIO:
+                print("Esa columna ya está llena")
+            else:
+                return jugada - 1
+        except ValueError:
+            continue
+
+def colocar_pieza(columna, jugador, tablero):
+    """
+    Coloca una pieza en el tablero. La columna debe
+    comenzar en 0
+    """
+    color = COLOR_1
+    if jugador == JUGADOR_2:
+        color = COLOR_2
+    fila = obtener_fila_valida_en_columna(columna, tablero)
+    if fila == -1:
+        return False
+    tablero[fila][columna] = color
     return True
 
-def felicitar_jugador(jugador_actual):
-    if jugador_actual == JUGADOR_1:
-        print("Felicidades Jugador 1. Has ganado")
-    else:
-        print("Felicidades Jugador 2. Has ganado")
+def obtener_fila_valida_en_columna(columna, tablero):
+    indice = len(tablero) - 1
+    while indice >= 0:
+        if tablero[indice][columna] == ESPACIO_VACIO:
+            return indice
+        indice -= 1
+    return -1
+
+def comprobar_ganador(jugador, tablero):
+    color = obtener_color_de_jugador(jugador)
+    for f, fila in enumerate(tablero):
+        for c, celda in enumerate(fila):
+            conteo = obtener_conteo(f, c, color, tablero)
+            if conteo >= CONECTA:
+                return True
+    return False
+
+def obtener_color_de_jugador(jugador):
+    color = COLOR_1
+    if jugador == JUGADOR_2:
+        color = COLOR_2
+    return color
+
+def obtener_conteo(fila, columna, color, tablero):
+    direcciones = [
+        'izquierda',
+        'arriba',
+        'abajo',
+        'derecha',
+        'arriba_derecha',
+        'abajo_derecha',
+        'arriba_izquierda',
+        'abajo_izquierda',
+    ]
+    for direccion in direcciones:
+        funcion = globals()['obtener_conteo_' + direccion]
+        conteo = funcion(fila, columna, color, tablero)
+        if conteo >= CONECTA:
+            return conteo
+    return 0
 
 def obtener_conteo_derecha(fila, columna, color, tablero):
     fin_columnas = len(tablero[0])
@@ -167,164 +297,36 @@ def obtener_conteo_abajo_izquierda(fila, columna, color, tablero):
         numero_columna -= 1
     return contador
 
-def obtener_conteo(fila, columna, color, tablero):
-    direcciones = [
-        'izquierda',
-        'arriba',
-        'abajo',
-        'derecha',
-        'arriba_derecha',
-        'abajo_derecha',
-        'arriba_izquierda',
-        'abajo_izquierda',
-    ]
-    for direccion in direcciones:
-        funcion = globals()['obtener_conteo_' + direccion]
-        conteo = funcion(fila, columna, color, tablero)
-        if conteo >= CONECTA:
-            return conteo
-    return 0
+def felicitar_jugador(jugador_actual):
+    if jugador_actual == JUGADOR_1:
+        print("Felicidades Jugador 1. Has ganado")
+    else:
+        print("Felicidades Jugador 2. Has ganado")
 
-def obtener_color_de_jugador(jugador):
-    color = COLOR_1
-    if jugador == JUGADOR_2:
-        color = COLOR_2
-    return color
-
-def comprobar_ganador(jugador, tablero):
-    color = obtener_color_de_jugador(jugador)
-    for f, fila in enumerate(tablero):
-        for c, celda in enumerate(fila):
-            conteo = obtener_conteo(f, c, color, tablero)
-            if conteo >= CONECTA:
-                return True
-    return False
-
-def obtener_fila_valida_en_columna(columna, tablero):
-    indice = len(tablero) - 1
-    while indice >= 0:
-        if tablero[indice][columna] == ESPACIO_VACIO:
-            return indice
-        indice -= 1
-    return -1
-
-def colocar_pieza(columna, jugador, tablero):
-    """
-    Coloca una pieza en el tablero. La columna debe
-    comenzar en 0
-    """
-    color = COLOR_1
-    if jugador == JUGADOR_2:
-        color = COLOR_2
-    fila = obtener_fila_valida_en_columna(columna, tablero)
-    if fila == -1:
-        return False
-    tablero[fila][columna] = color
+def es_empate(tablero):
+    for columna in range(len(tablero[0])):
+        if obtener_fila_valida_en_columna(columna, tablero) != -1:
+            return False
     return True
 
-def solicitar_columna(tablero):
-    """
-    Solicita la columna y devuelve la columna ingresada -1 para ser usada fácilmente como índice
-    """
+def indicar_empate():
+    print("Empate")
+
+def volver_a_jugar():
     while True:
-        try:
-            jugada = int(input("Ingresa el numero de la columna para colocar la pieza: "))    
-            if jugada <= 0 or jugada > len(tablero[0]):
-                print("Columna no válida")
-            elif tablero[0][jugada - 1] != ESPACIO_VACIO:
-                print("Esa columna ya está llena")
-            else:
-                return jugada - 1
-        except ValueError:
-            continue
+        eleccion = input("¿Quieres volver a jugar? [s/n] ").lower()
+        if eleccion == "s":
+            borrar_consola()
+            return True
+        elif eleccion == "n":
+            print("adios")
+            os.system("pause")
+            borrar_consola()
+            return False
 
-def imprimir_y_solicitar_turno(turno, tablero):
-    print(f"Jugador 1: {COLOR_1} | Jugador 2: {COLOR_2}")
-    if turno == JUGADOR_1:
-        print(f"Turno del jugador 1 ({COLOR_1})")
-    else:
-        print(f"Turno del jugador 2 ({COLOR_2})")
-    return solicitar_columna(tablero)
-
-def obtener_tiradas_faltantes_en_columna(columna, tablero):
-    indice = len(tablero) - 1
-    tiradas = 0
-    while indice >= 0:
-        if tablero[indice][columna] == ESPACIO_VACIO:
-            tiradas += 1
-        indice -= 1
-    return tiradas
-
-def obtener_tiradas_faltantes(tablero):
-    tiradas = 0
-    for columna in range(len(tablero[0])):
-        tiradas += obtener_tiradas_faltantes_en_columna(columna, tablero)
-    return tiradas
-
-def imprimir_tiradas_faltantes(tablero):
-    print("Tiradas faltantes: " + str(obtener_tiradas_faltantes(tablero)))
-
-def imprimir_tablero(tablero):
-    # Imprime números de columnas
-    print("|", end="")
-    for f in range(1, len(tablero[0]) + 1):
-        print(f, end="|")
-    print("")
-    # Datos
-    for fila in tablero:
-        print("|", end="")
-        for valor in fila:
-            color_terminal = Fore.GREEN
-            if valor == COLOR_2:
-                color_terminal = Fore.RED
-            print(color_terminal + valor, end="")
-            print(Style.RESET_ALL, end="")
-            print("|", end="")
-        print("")
-    # Pie
-    print("+", end="")
-    for f in range(1, len(tablero[0]) + 1):
-        print("-", end="+")
-    print("")
-
-def elegir_jugador_al_azar():
-    return random.choice([JUGADOR_1, JUGADOR_2])
-
-def jugador_vs_jugador(tablero):
-    jugador_actual = elegir_jugador_al_azar()
-    while True:
-        imprimir_tablero(tablero)
-        imprimir_tiradas_faltantes(tablero)
-        columna = imprimir_y_solicitar_turno(jugador_actual, tablero)
-        pieza_colocada = colocar_pieza(columna, jugador_actual, tablero)
-        if not pieza_colocada:
-            print("No se puede colocar en esa columna")
-        ha_ganado = comprobar_ganador(jugador_actual, tablero)
-        if ha_ganado:
-            imprimir_tablero(tablero)
-            felicitar_jugador(jugador_actual)
-            break
-        elif es_empate(tablero):
-            imprimir_tablero(tablero)
-            indicar_empate()
-            break
-        else:
-            if jugador_actual == JUGADOR_1:
-                jugador_actual = JUGADOR_2
-            else:
-                jugador_actual = JUGADOR_1
-
-def crear_tablero():
-    tablero = []
-    filas=6
-    columnas=7
-    for fila in range(filas):
-        tablero.append([])
-        for columna in range(columnas):
-            tablero[fila].append(ESPACIO_VACIO)
-    return tablero
-
-def main():
+if __name__=="__main__":
+    borrar_consola()
+    checkear_version_de_python()
     ejecucion=True
     while ejecucion:
         eleccion = input("1- Iniciar partida\n2- Salir del juego\nElige: ")
@@ -340,8 +342,3 @@ def main():
             os.system("pause")
             borrar_consola()
             ejecucion=False
-
-if __name__=="__main__":
-    borrar_consola()
-    checkear_version_de_python()
-    main()
