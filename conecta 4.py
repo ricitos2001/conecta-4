@@ -36,7 +36,7 @@ def crear_tablero():
     columnas=7
     for fila in range(filas):
         tablero.append([])
-        for columna in range(columnas):
+        for _ in range(columnas):
             tablero[fila].append(ESPACIO_VACIO)
     return tablero
 
@@ -157,7 +157,7 @@ def obtener_fila_valida_en_columna(columna, tablero):
 def comprobar_ganador(jugador, tablero):
     color = obtener_color_de_jugador(jugador)
     for f, fila in enumerate(tablero):
-        for c, celda in enumerate(fila):
+        for c, _ in enumerate(fila):
             conteo = obtener_conteo(f, c, color, tablero)
             if conteo >= CONECTA:
                 return True
@@ -201,7 +201,6 @@ def obtener_conteo_derecha(fila, columna, color, tablero):
 
 def obtener_conteo_izquierda(fila, columna, color, tablero):
     contador = 0
-    # -1 porque no es inclusivo
     for i in range(columna, -1, -1):
         if contador >= CONECTA:
             return contador
@@ -209,7 +208,6 @@ def obtener_conteo_izquierda(fila, columna, color, tablero):
             contador += 1
         else:
             contador = 0
-
     return contador
 
 def obtener_conteo_arriba(fila, columna, color, tablero):
