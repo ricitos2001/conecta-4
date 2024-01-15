@@ -40,9 +40,9 @@ def crear_tablero():
             tablero[fila].append(ESPACIO_VACIO)
     return tablero
 
-def jugador_vs_jugador(tablero):
+def jugador_vs_jugador(tablero, ejecucion):
     jugador_actual = elegir_jugador_al_azar()
-    while True:
+    while ejecucion:
         imprimir_tablero(tablero)
         imprimir_tiradas_faltantes(tablero)
         columna = imprimir_y_solicitar_turno(jugador_actual, tablero)
@@ -53,11 +53,11 @@ def jugador_vs_jugador(tablero):
         if ha_ganado:
             imprimir_tablero(tablero)
             felicitar_jugador(jugador_actual)
-            break
+            ejecucion = False
         elif es_empate(tablero):
             imprimir_tablero(tablero)
             indicar_empate()
-            break
+            ejecucion = False
         else:
             if jugador_actual == JUGADOR_1:
                 jugador_actual = JUGADOR_2
@@ -332,7 +332,7 @@ if __name__=="__main__":
             ejecucion=True
             while ejecucion:
                 tablero = crear_tablero()
-                jugador_vs_jugador(tablero)
+                jugador_vs_jugador(tablero, ejecucion)
                 if not volver_a_jugar():
                     ejecucion=False
         elif eleccion == "2":
