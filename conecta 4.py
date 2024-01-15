@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import random
 from colorama import init, Fore, Style
 
@@ -45,7 +46,34 @@ def jugador_vs_jugador(tablero, ejecucion):
     while ejecucion:
         imprimir_tablero(tablero)
         imprimir_tiradas_faltantes(tablero)
-        columna = imprimir_y_solicitar_turno(jugador_actual, tablero)
+        columna = imprimir_y_solicitar_turno_jugador(jugador_actual, tablero)
+        pieza_colocada = colocar_pieza(columna, jugador_actual, tablero)
+        if not pieza_colocada:
+            print("No se puede colocar en esa columna")
+        ha_ganado = comprobar_ganador(jugador_actual, tablero)
+        if ha_ganado:
+            imprimir_tablero(tablero)
+            felicitar_jugador(jugador_actual)
+            ejecucion = False
+        elif es_empate(tablero):
+            imprimir_tablero(tablero)
+            indicar_empate()
+            ejecucion = False
+        else:
+            if jugador_actual == JUGADOR_1:
+                jugador_actual = JUGADOR_2
+            else:
+                jugador_actual = JUGADOR_1
+
+def IA_vs_IA(tablero, ejecucion):
+    jugador_actual = elegir_jugador_al_azar()
+    while ejecucion:
+        imprimir_tablero(tablero)
+        imprimir_tiradas_faltantes(tablero)
+        columna = imprimir_y_solicitar_turno_IA(jugador_actual, tablero)
+        print("Esperando respuesta de la computadora")
+        time.sleep(1)
+        borrar_consola()
         pieza_colocada = colocar_pieza(columna, jugador_actual, tablero)
         if not pieza_colocada:
             print("No se puede colocar en esa columna")
@@ -108,21 +136,45 @@ def obtener_tiradas_faltantes_en_columna(columna, tablero):
         indice -= 1
     return tiradas
 
-def imprimir_y_solicitar_turno(turno, tablero):
+def imprimir_y_solicitar_turno_jugador(turno, tablero):
     print(f"Jugador 1: {COLOR_1} | Jugador 2: {COLOR_2}")
     if turno == JUGADOR_1:
         print(f"Turno del jugador 1 ({COLOR_1})")
     else:
         print(f"Turno del jugador 2 ({COLOR_2})")
-    return solicitar_columna(tablero)
+    return movimiento_jugador(tablero)
 
-def solicitar_columna(tablero):
+def movimiento_jugador(tablero):
     """
     Solicita la columna y devuelve la columna ingresada -1 para ser usada fácilmente como índice
     """
     while True:
         try:
             jugada = int(input("Ingresa el numero de la columna para colocar la pieza: "))    
+            if jugada <= 0 or jugada > len(tablero[0]):
+                print("Columna no válida")
+            elif tablero[0][jugada - 1] != ESPACIO_VACIO:
+                print("Esa columna ya está llena")
+            else:
+                return jugada - 1
+        except ValueError:
+            continue
+
+def imprimir_y_solicitar_turno_IA(turno, tablero):
+    print(f"Jugador 1: {COLOR_1} | Jugador 2: {COLOR_2}")
+    if turno == JUGADOR_1:
+        print(f"Turno del jugador 1 ({COLOR_1})")
+    else:
+        print(f"Turno del jugador 2 ({COLOR_2})")
+    return movimiento_IA(tablero)
+
+def movimiento_IA(tablero):
+    """
+    Solicita la columna y devuelve la columna ingresada -1 para ser usada fácilmente como índice
+    """
+    while True:
+        try:
+            jugada = random.randint(1, 7)
             if jugada <= 0 or jugada > len(tablero[0]):
                 print("Columna no válida")
             elif tablero[0][jugada - 1] != ESPACIO_VACIO:
@@ -322,12 +374,12 @@ def volver_a_jugar():
             borrar_consola()
             return False
 
-if __name__=="__main__":
+def main():
     borrar_consola()
     checkear_version_de_python()
     ejecucion=True
     while ejecucion:
-        eleccion = input("1- Iniciar partida\n2- Salir del juego\nElige: ")
+        eleccion = input("1- Iniciar partida multijugador (P vs P)\n2- Iniciar partida multijugador (IA vs IA)\nElige: ")
         if eleccion == "1":
             ejecucion=True
             while ejecucion:
@@ -336,7 +388,12 @@ if __name__=="__main__":
                 if not volver_a_jugar():
                     ejecucion=False
         elif eleccion == "2":
-            print("adios")
-            os.system("pause")
-            borrar_consola()
-            ejecucion=False
+            ejecucion=True
+            while ejecucion:
+                tablero = crear_tablero()
+                IA_vs_IA(tablero, ejecucion)
+                if not volver_a_jugar():
+                    ejecucion=False
+
+if __name__=="__main__":
+    main()
