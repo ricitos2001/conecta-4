@@ -23,13 +23,14 @@ server.settimeout(0.2)
 
 # mensaje que enviará el servidor con su dirección IP
 # msj = f"{ip}"
-msj = "marco"
+msj = input("introduce un mensaje: ")
 msj_encode = msj.encode('utf-8') # codificación del mensaje
 
+print("\nBuscando alguien para jugar")
 respuesta_decode = ""
 while (respuesta_decode == ""):
     server.sendto(msj_encode, ('<broadcast>', 37020)) # puerto: 37020
-    print("Mensaje enviado!")
+    
 
     try:
         # Esperar la respuesta
@@ -37,7 +38,13 @@ while (respuesta_decode == ""):
         respuesta_decode = respuesta.decode('utf-8')
         print(respuesta_decode)
     except socket.timeout:
-        print("Esperando respuesta...")
+        for i in range(4):
+            mensaje = "Esperando respuesta" + "." * i
+            print(f'\r{mensaje}', end='', flush=True)
+            time.sleep(0.5)
+        
+        # Reiniciar el mensaje al llegar al final
+        print('\r' + ' ' * len(mensaje), end='', flush=True)
 
 
 server.close()

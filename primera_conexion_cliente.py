@@ -27,7 +27,7 @@ try:
 
     # Envía una respuesta al servidor
     # respuesta = f"{ip}"
-    respuesta = "polo"
+    respuesta = input("introduce un mensaje: ")
     client.sendto(respuesta.encode('utf-8'), ip_servidor)
     print(mensaje)
 
