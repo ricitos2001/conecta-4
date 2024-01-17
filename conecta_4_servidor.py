@@ -33,6 +33,20 @@ def comprobar_version_python() -> bool:
     return version_valida
 
 
+def saber_mi_ip() -> str:
+    '''Obtener ip privada del ordenador
+
+    Return:
+        str: ip de este equipo, servidor
+    '''
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip_servidor = s.getsockname()[0]
+    s.close()
+
+    return ip_servidor
+
+
 def buscar_para_jugar() -> str:
     '''PRIMERA CONEXIÓN, BUSCAR QUIEN QUIERE JUGAR
 
@@ -83,11 +97,40 @@ def main():
     # si la versión es válida empieza a ejecutarse el programa
     if version_valida:
 
+        # saber mi ip
+        ip_servidor = saber_mi_ip()
+
         # buscar con quien jugar
         ip_cliente, puerto = buscar_para_jugar() # el puerto es 37020
         
         # conexión directa con el cliente
-            with socket_juego = 
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_juego:
+            socket_juego.bind((ip_servidor, puerto))
+            socket_juego.listen()
+
+            socket_entrada, ip_cliente = socket_juego.accept() # block, espera conexión entrante del cliente
+
+            with socket_entrada:
+                print("-- EMPIEZA LA PARTIDA --")
+                
+                ganador = False
+                while ganador == False:
+                    
+                    # empieza la partida el cliente
+                    mov_cliente = socket_entrada.recv(1024) # block, espera a que el cliente envie su movimiento
+
+                    # lo pone en el tablero o compueba si es un mensaje para terminar la partida
+
+                    # elige una columna donde colocar su ficha
+
+                    # comprueba si ha ganado o el tablero esta lleno
+
+                    # el servidor envía su movimiento
+                    socket_entrada.sendall("movimeinto del servidor")
+
+        socket_juego.close()
+
+        print("-- FIN DE LA PARTIDA --")
 
 
 if __name__ == '__main__':
