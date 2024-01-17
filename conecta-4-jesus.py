@@ -62,24 +62,6 @@ def enviar_tablero(socket_juego, tablero):
         estado_tablero += "|".join(fila) + "\n"
     socket_juego.send(estado_tablero.encode('utf-8'))
 
-def obtener_movimiento_ia(tablero):
-    # Lógica avanzada para la IA: elegir la columna que maximiza las posibilidades de alinear fichas y bloquear al oponente
-    mejor_columna = None
-    mejor_puntaje = -1
-
-    for columna in range(7):
-        if tablero[0][columna] == ' ':
-            fila = obtener_fila_disponible(tablero, columna)
-            tablero[fila][columna] = 'X'  # Supongamos que es el turno de la IA
-            puntaje = evaluar_puntaje(tablero, fila, columna, 'X')
-            tablero[fila][columna] = ' '  # Deshacer el movimiento
-
-            if puntaje > mejor_puntaje:
-                mejor_puntaje = puntaje
-                mejor_columna = columna
-
-    return mejor_columna
-
 def colocar_ficha(tablero, columna, jugador):
     fila = 5
     while fila >= 0 and tablero[fila][columna] != ' ':
@@ -114,6 +96,24 @@ def hay_ganador(tablero, fila, columna, jugador):
         return True
 
     return False
+
+def obtener_movimiento_ia(tablero):
+    # Lógica avanzada para la IA: elegir la columna que maximiza las posibilidades de alinear fichas y bloquear al oponente
+    mejor_columna = None
+    mejor_puntaje = -1
+
+    for columna in range(7):
+        if tablero[0][columna] == ' ':
+            fila = obtener_fila_disponible(tablero, columna)
+            tablero[fila][columna] = 'X'  # Supongamos que es el turno de la IA
+            puntaje = evaluar_puntaje(tablero, fila, columna, 'X')
+            tablero[fila][columna] = ' '  # Deshacer el movimiento
+
+            if puntaje > mejor_puntaje:
+                mejor_puntaje = puntaje
+                mejor_columna = columna
+
+    return mejor_columna
 
 def obtener_fila_disponible(tablero, columna):
     fila = 5
@@ -193,3 +193,41 @@ def manejar_turno_jugador(socket_juego, tablero, jugador_actual):
         return True
 
     return False
+
+def main():
+    version_valida = comprobar_version_python()
+
+    if version_valida:
+        ip_cliente, puerto = buscar_para_jugar()
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_juego:
+            socket_juego.connect((ip_cliente, puerto))
+
+            tablero = [[' ' for _ in range(7)] for _ in range(6)]
+            mensaje_inicio = "¡Bienvenido a Conecta 4! Empieza el juego."
+            socket_juego.send(mensaje_inicio.encode('utf-8'))
+
+            jugador_actual = 'X'
+            fichas_restantes_jugador1 = fichas_restantes_jugador2 = 21
+
+            for _ in range(42):  # Se asume que habrá un máximo de 42 movimientos en un juego de 7x6
+                if jugador_actual == 'X':
+                    if manejar_turno_jugador(socket_juego, tablero, jugador_actual):
+                        break
+                else:
+                    if manejar_turno_jugador(socket_juego, tablero, jugador_actual):
+                        break
+
+                if fichas_restantes_jugador1 == 0 and fichas_restantes_jugador2 == 0:
+                    mostrar_tablero(tablero)
+                    mensaje_empate = "¡El juego ha terminado en empate!"
+                    socket_juego.send(mensaje_empate.encode('utf-8'))
+                    break
+
+                jugador_actual = 'O' if jugador_actual == 'X' else 'X'
+                fichas_restantes_jugador1 -= 1 if jugador_actual == 'X' else 0
+                fichas_restantes_jugador2 -= 1 if jugador_actual == 'O' else 0
+
+
+if __name__ == '__main__':
+    main()
