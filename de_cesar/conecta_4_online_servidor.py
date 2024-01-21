@@ -415,10 +415,10 @@ def comprobar_ganador(jugador, tablero):
 
 def felicitar_jugador(jugador_actual):
     if jugador_actual == JUGADOR_1:
-        mensaje=(COLOR_CIAN + "henorabuena! Jugador 1  has ganado 🏆" + RESETEO_COLOR) + "\n" + (COLOR_AMARILLO +  "Jugador 2 has perdido! pipipi pipipi 😱" + RESETEO_COLOR)
+        mensaje=(COLOR_CIAN + "enhorabuena! Jugador 1  has ganado 🏆" + RESETEO_COLOR) + "\n" + (COLOR_AMARILLO +  "Jugador 2 has perdido! pipipi pipipi 😱" + RESETEO_COLOR)
         print(mensaje)
     elif jugador_actual == JUGADOR_2:
-        mensaje=(COLOR_CIAN + "henorabuena! Jugador 2  has ganado 🏆" + RESETEO_COLOR) + "\n" + (COLOR_AMARILLO +  "Jugador 1 has perdido! pipipi pipipi 😱" + RESETEO_COLOR)
+        mensaje=(COLOR_CIAN + "enhorabuena! Jugador 2  has ganado 🏆" + RESETEO_COLOR) + "\n" + (COLOR_AMARILLO +  "Jugador 1 has perdido! pipipi pipipi 😱" + RESETEO_COLOR)
         print(mensaje)
 
 def es_empate(tablero):
