@@ -99,7 +99,7 @@ def iniciar_cliente(jugador_actual, ejecucion):
         None
     """
     # PRIMERA CONEXIÓN, BUSCAR QUIEN QUIERE JUGAR
-    # crear el socket --> IPv4 & UDP
+    # Crear el socket --> IPv4 & UDP
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Modo de difusión: recibira paquetes trasmiridos por los equipos de la red
     client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -117,7 +117,7 @@ def iniciar_cliente(jugador_actual, ejecucion):
         print(f"Mensaje recibido!")
         tablero = crear_tablero(mensaje_str)
         # Envía una respuesta al servidor
-        # respuesta = f"{ip}"
+        # Respuesta = f"{ip}"
         respuesta = enviar_movimiento_cliente(tablero, jugador_actual, ejecucion)
         client.sendto(respuesta.encode('utf-8'), ip_servidor)
         ha_ganado = comprobar_ganador(jugador_actual, tablero)
@@ -133,7 +133,7 @@ def iniciar_cliente(jugador_actual, ejecucion):
     client.close()
 
 #TODO \\FUNCION QUE REALIZA EL ENVIO DE LOS MOVIMIENTOS DEL CLIENTE//
-#funcion que envia los movimientos del cliente al servidor
+#Funcion que envia los movimientos del cliente al servidor
 def enviar_movimiento_cliente(tablero, jugador_actual, ejecucion):
     """
     Envía el movimiento del cliente al servidor y actualiza el estado del tablero.
@@ -157,7 +157,7 @@ def enviar_movimiento_cliente(tablero, jugador_actual, ejecucion):
             return None
         return tablero_to_string(tablero)
 
-# pasar el tablero a formato de string para que el cliente lo reciba
+# Pasar el tablero a formato de string para que el cliente lo reciba
 def tablero_to_string(tablero):
     """
     Convierte la representación del tablero (lista bidimensional) a una cadena de texto.
@@ -174,7 +174,7 @@ def tablero_to_string(tablero):
     result += "+-" * len(tablero[0]) + "+\n"
     return result
 
-# crea el tablero a raiz del mensaje recibido por el servidor
+# Crea el tablero a raiz del mensaje recibido por el servidor
 def crear_tablero(mensaje_str):
     """
     Crea un tablero a partir de un mensaje codificado.
@@ -195,7 +195,7 @@ def crear_tablero(mensaje_str):
             tablero[i][j] = caracter
     return tablero
 
-# imprime el tablero a raiz del mensaje recibido
+# Imprime el tablero a raiz del mensaje recibido
 def imprimir_tablero(tablero):
     """
     Imprime visualmente el estado actual del tablero.
