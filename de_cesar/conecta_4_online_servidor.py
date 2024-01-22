@@ -357,7 +357,7 @@ def es_empate(tablero):
     return True
 
 def indicar_empate():
-    print( COLOR_NARANJA + "empate...\n"+ COLOR_MAGENTA + "A MIMIR! 😴😴😴😴😴" + RESETEO_COLOR + "\n")
+    print(COLOR_NARANJA + "empate...\n"+ COLOR_MAGENTA + "A MIMIR! 😴😴😴😴😴" + RESETEO_COLOR)
 
 #TODO \\FUNCION PARA ELEGIR SI QUIERES VOLVER A JUGAR//
 def volver_a_jugar():
