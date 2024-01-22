@@ -40,19 +40,6 @@ CONECTA = 4
 
 #TODO \\FUNCION QUE COMPRUEBA SI LA VERSION DE PYTHON DE TU ORDENADOR ES COMPATIBLE//
 def checkear_version_de_python():
-    """
-    Comprueba si la versión de Python instalada es compatible con la aplicación.
-
-    Args:
-        No recibe argumentos directos, utiliza información de sys.version_info.
-
-    Prints:
-        Muestra un mensaje indicando si la versión de Python instalada es compatible o no.
-        Si no es compatible, proporciona información sobre las versiones requeridas.
-
-    Returns:
-        No devuelve ningún valor directamente, pero puede imprimir mensajes en la consola.
-    """
     version_requerida = [(3, 10), (3, 11), (3, 12)]
     version_instalada = sys.version_info[:2]
     if version_instalada in version_requerida:
@@ -66,15 +53,6 @@ def checkear_version_de_python():
 
 #TODO \\FUNCION QUE LIMPIA EL TERMINAL PARA QUE SE VEA MAS CLARO//
 def borrar_consola():
-    """
-    Borra la pantalla de la consola, proporcionando una interfaz limpia.
-
-    Args:
-        No recibe argumentos directos, utiliza información de os.name.
-
-    Returns:
-        No devuelve ningún valor directamente, pero realiza la acción de borrar la consola.
-    """
     if os.name == "posix":
         os.system ("clear")
     elif os.name == "ce" or os.name == "nt" or os.name == "dos":
@@ -88,18 +66,8 @@ ip = s.getsockname()[0]
 s.close()
 
 def iniciar_cliente(jugador_actual, ejecucion):
-    """
-    Inicia el cliente para el juego de conecta 4 utilizando sockets UDP.
-
-    Args:
-        jugador_actual (str): El jugador actual que participa en el juego.
-        ejecucion (bool): Indicador para controlar la ejecución del juego.
-
-    Returns:
-        None
-    """
     # PRIMERA CONEXIÓN, BUSCAR QUIEN QUIERE JUGAR
-    # Crear el socket --> IPv4 & UDP
+    # crear el socket --> IPv4 & UDP
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     # Modo de difusión: recibira paquetes trasmiridos por los equipos de la red
     client.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -117,7 +85,7 @@ def iniciar_cliente(jugador_actual, ejecucion):
         print(f"Mensaje recibido!")
         tablero = crear_tablero(mensaje_str)
         # Envía una respuesta al servidor
-        # Respuesta = f"{ip}"
+        # respuesta = f"{ip}"
         respuesta = enviar_movimiento_cliente(tablero, jugador_actual, ejecucion)
         client.sendto(respuesta.encode('utf-8'), ip_servidor)
         ha_ganado = comprobar_ganador(jugador_actual, tablero)
@@ -133,20 +101,8 @@ def iniciar_cliente(jugador_actual, ejecucion):
     client.close()
 
 #TODO \\FUNCION QUE REALIZA EL ENVIO DE LOS MOVIMIENTOS DEL CLIENTE//
-#Funcion que envia los movimientos del cliente al servidor
+#funcion que envia los movimientos del cliente al servidor
 def enviar_movimiento_cliente(tablero, jugador_actual, ejecucion):
-    """
-    Envía el movimiento del cliente al servidor y actualiza el estado del tablero.
-
-    Args:
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-        jugador_actual (str): El jugador que realiza el movimiento.
-        ejecucion (bool): Un indicador para controlar la ejecución del juego.
-
-    Returns:
-        str: La representación del tablero como cadena después de realizar el movimiento.
-            Devuelve None si no se puede colocar la pieza en la columna especificada.
-    """
     while ejecucion:
         imprimir_tablero(tablero)
         imprimir_tiradas_faltantes(tablero)
@@ -155,36 +111,18 @@ def enviar_movimiento_cliente(tablero, jugador_actual, ejecucion):
         if not pieza_colocada:
             print("No se puede colocar en esa columna")
             return None
-        return tablero_to_string(tablero)
+        return conversion_de_tablero_a_string(tablero)
 
-# Pasar el tablero a formato de string para que el cliente lo reciba
-def tablero_to_string(tablero):
-    """
-    Convierte la representación del tablero (lista bidimensional) a una cadena de texto.
-
-    Args:
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        str: Una cadena que representa el tablero en un formato visual.
-    """
-    result = ""
+# pasar el tablero a formato de string para que el cliente lo reciba
+def conversion_de_tablero_a_string(tablero):
+    resultado = ""
     for fila in tablero:
-        result += "|" + "|".join(fila) + "|\n"
-    result += "+-" * len(tablero[0]) + "+\n"
-    return result
+        resultado += "|" + "|".join(fila) + "|\n"
+    resultado += "+-" * len(tablero[0]) + "+\n"
+    return resultado
 
-# Crea el tablero a raiz del mensaje recibido por el servidor
+# crea el tablero a raiz del mensaje recibido por el servidor
 def crear_tablero(mensaje_str):
-    """
-    Crea un tablero a partir de un mensaje codificado.
-
-    Args:
-        mensaje_str (str): Una cadena que representa el estado del tablero codificado.
-
-    Returns:
-        list: Una lista bidimensional que representa el tablero del juego.
-    """
     # Divide el mensaje en líneas y extrae las filas del tablero
     lineas = mensaje_str.strip().split('\n')[0:-1]
     # Inicializa el tablero con espacios en blanco
@@ -195,17 +133,8 @@ def crear_tablero(mensaje_str):
             tablero[i][j] = caracter
     return tablero
 
-# Imprime el tablero a raiz del mensaje recibido
+# imprime el tablero a raiz del mensaje recibido
 def imprimir_tablero(tablero):
-    """
-    Imprime visualmente el estado actual del tablero.
-
-    Args:
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        None
-    """
     # Imprime números de columnas
     print("|", end="")
     for f in range(1, len(tablero[0]) + 1):
@@ -229,16 +158,6 @@ def imprimir_tablero(tablero):
     print("")
 
 def obtener_tiradas_faltantes_en_columna(columna, tablero):
-    """
-    Obtiene la cantidad de tiradas disponibles en una columna específica del tablero.
-
-    Args:
-        columna (int): Índice de la columna en la que se desea contar las tiradas disponibles.
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        int: La cantidad de tiradas disponibles en la columna especificada.
-    """
     indice = len(tablero) - 1
     tiradas = 0
     while indice >= 0:
@@ -248,43 +167,16 @@ def obtener_tiradas_faltantes_en_columna(columna, tablero):
     return tiradas
 
 def obtener_tiradas_faltantes(tablero):
-    """
-    Obtiene la cantidad total de tiradas disponibles en todas las columnas del tablero.
-
-    Args:
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        int: La cantidad total de tiradas disponibles en todas las columnas.
-    """
     tiradas = 0
     for columna in range(len(tablero[0])):
         tiradas += obtener_tiradas_faltantes_en_columna(columna, tablero)
     return tiradas
 
 def imprimir_tiradas_faltantes(tablero):
-    """
-    Imprime la cantidad total de tiradas disponibles en todas las columnas del tablero.
-
-    Args:
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        None
-    """
     print("Tiradas faltantes: " + str(obtener_tiradas_faltantes(tablero)))
 
 #TODO \\FUNCIONES PARA REALIZAR LA JUGADA E INSERTAR LA FICHA EN EL TABLERO//
 def realizar_jugada(tablero):
-    """
-    Solicita al usuario que ingrese la columna para colocar una pieza en el tablero.
-
-    Args:
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        int: El índice de la columna donde se desea colocar la pieza.
-    """
     while True:
         try:
             jugada = int(input("Ingresa el numero de la columna para colocar la pieza: "))    
@@ -299,16 +191,6 @@ def realizar_jugada(tablero):
             continue
 
 def imprimir_y_solicitar_turno(turno, tablero):
-    """
-    Imprime información sobre el turno actual y solicita al usuario que realice una jugada.
-
-    Args:
-        turno (str): El jugador actual que tiene el turno.
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        int: El índice de la columna donde se desea colocar la pieza, ajustado para la indexación de Python.
-    """
     print(f"Jugador 1: {SIMBOLO_JUGADOR_1} | Jugador 2: {SIMBOLO_JUGADOR_2}")
     if turno == JUGADOR_1:
         print(f"Turno del jugador 1 ({SIMBOLO_JUGADOR_1})")
@@ -317,16 +199,6 @@ def imprimir_y_solicitar_turno(turno, tablero):
     return realizar_jugada(tablero)
 
 def obtener_fila_valida_en_columna(columna, tablero):
-    """
-    Obtiene la fila más baja en una columna específica donde se puede colocar una pieza.
-
-    Args:
-        columna (int): Índice de la columna en la que se desea encontrar una fila válida.
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        int: El índice de la fila más baja donde se puede colocar una pieza, o -1 si la columna está llena.
-    """
     indice = len(tablero) - 1
     while indice >= 0:
         if tablero[indice][columna] == ESPACIO_VACIO:
@@ -335,17 +207,6 @@ def obtener_fila_valida_en_columna(columna, tablero):
     return -1
 
 def colocar_pieza(columna, jugador, tablero):
-    """
-    Coloca la pieza de un jugador en una columna específica del tablero.
-
-    Args:
-        columna (int): Índice de la columna en la que se desea colocar la pieza.
-        jugador (str): El jugador actual que realiza la jugada.
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        bool: True si la pieza se colocó con éxito, False si la columna está llena.
-    """
     color = SIMBOLO_JUGADOR_2
     if jugador == JUGADOR_1:
         color = SIMBOLO_JUGADOR_1
@@ -355,69 +216,19 @@ def colocar_pieza(columna, jugador, tablero):
     tablero[fila][columna] = color
     return True
 
-#TODO \\FUNCIONES PARA VERIFICAR SI HAY UN EMPATE O UN GANADOR Y UN PERDEDOR// 
-def obtener_conteo_arriba(fila, columna, color, tablero):
-    """
-    Obtiene el conteo de piezas consecutivas hacia arriba desde una posición específica.
-
-    Args:
-        fila (int): Índice de la fila inicial.
-        columna (int): Índice de la columna.
-        color (str): Color de la pieza a contar.
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        int: La cantidad de piezas consecutivas hacia arriba.
-    """
+#TODO \\FUNCIONES PARA VERIFICAR SI HAY UN EMPATE O GANADOR Y UN PERDEDOR// 
+def obtener_conteo_vertical(fila, columna, color, tablero):
     contador = 0
     for i in range(fila, -1, -1):
         if contador >= CONECTA:
             return contador
-        if contador >= CONECTA:
-            return contador
         if tablero[i][columna] == color:
             contador += 1
         else:
             contador = 0
     return contador
 
-def obtener_conteo_abajo(fila, columna, color, tablero):
-    """
-    Obtiene el conteo de piezas consecutivas hacia abajo desde una posición específica.
-
-    Args:
-        fila (int): Índice de la fila inicial.
-        columna (int): Índice de la columna.
-        color (str): Color de la pieza a contar.
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        int: La cantidad de piezas consecutivas hacia abajo.
-    """
-    fin_filas = len(tablero)
-    contador = 0
-    for i in range(fila, fin_filas):
-        if contador >= CONECTA:
-            return contador
-        if tablero[i][columna] == color:
-            contador += 1
-        else:
-            contador = 0
-    return contador
-
-def obtener_conteo_izquierda(fila, columna, color, tablero):
-    """
-    Obtiene el conteo de piezas consecutivas hacia la izquierda desde una posición específica.
-
-    Args:
-        fila (int): Índice de la fila.
-        columna (int): Índice de la columna inicial.
-        color (str): Color de la pieza a contar.
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        int: La cantidad de piezas consecutivas hacia la izquierda.
-    """
+def obtener_conteo_horizontal(fila, columna, color, tablero):
     contador = 0
     for i in range(columna, -1, -1):
         if contador >= CONECTA:
@@ -428,47 +239,11 @@ def obtener_conteo_izquierda(fila, columna, color, tablero):
             contador = 0
     return contador
 
-def obtener_conteo_derecha(fila, columna, color, tablero):
-    """
-    Obtiene el conteo de piezas consecutivas hacia la derecha desde una posición específica.
-
-    Args:
-        fila (int): Índice de la fila.
-        columna (int): Índice de la columna inicial.
-        color (str): Color de la pieza a contar.
-        tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-    Returns:
-        int: La cantidad de piezas consecutivas hacia la derecha.
-    """
-    fin_columnas = len(tablero[0])
-    contador = 0
-    for i in range(columna, fin_columnas):
-        if contador >= CONECTA:
-            return contador
-        if tablero[fila][i] == color:
-            contador += 1
-        else:
-            contador = 0
-    return contador
-
-def obtener_conteo_arriba_izquierda(fila, columna, color, tablero):
-    """
-Obtiene el conteo de piezas consecutivas en la diagonal superior izquierda desde una posición específica.
-
-Args:
-    fila (int): Índice de la fila inicial.
-    columna (int): Índice de la columna inicial.
-    color (str): Color de la pieza a contar.
-    tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-Returns:
-    int: La cantidad de piezas consecutivas en la diagonal superior izquierda.
-"""
+def obtener_conteo_diagonal(fila, columna, color, tablero):
     contador = 0
     numero_fila = fila
     numero_columna = columna
-    while numero_fila >= 0 and numero_columna >= 0:
+    while (numero_fila >= 0 and numero_columna >= 0) and (numero_fila >= 0 and numero_columna < len(tablero[0])):
         if contador >= CONECTA:
             return contador
         if tablero[numero_fila][numero_columna] == color:
@@ -477,103 +252,10 @@ Returns:
             contador = 0
         numero_fila -= 1
         numero_columna -= 1
-    return contador
-
-def obtener_conteo_arriba_derecha(fila, columna, color, tablero):
-    """
-Obtiene el conteo de piezas consecutivas en la diagonal superior derecha desde una posición específica.
-
-Args:
-    fila (int): Índice de la fila inicial.
-    columna (int): Índice de la columna inicial.
-    color (str): Color de la pieza a contar.
-    tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-Returns:
-    int: La cantidad de piezas consecutivas en la diagonal superior derecha.
-"""
-    contador = 0
-    numero_fila = fila
-    numero_columna = columna
-    while numero_fila >= 0 and numero_columna < len(tablero[0]):
-        if contador >= CONECTA:
-            return contador
-        if tablero[numero_fila][numero_columna] == color:
-            contador += 1
-        else:
-            contador = 0
-        numero_fila -= 1
-        numero_columna += 1
-    return contador
-
-def obtener_conteo_abajo_izquierda(fila, columna, color, tablero):
-    """
-Obtiene el conteo de piezas consecutivas en la diagonal inferior izquierda desde una posición específica.
-
-Args:
-    fila (int): Índice de la fila inicial.
-    columna (int): Índice de la columna inicial.
-    color (str): Color de la pieza a contar.
-    tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-Returns:
-    int: La cantidad de piezas consecutivas en la diagonal inferior izquierda.
-"""
-    contador = 0
-    numero_fila = fila
-    numero_columna = columna
-    while numero_fila < len(tablero) and numero_columna >= 0:
-        if contador >= CONECTA:
-            return contador
-        if tablero[numero_fila][numero_columna] == color:
-            contador += 1
-        else:
-            contador = 0
-        numero_fila += 1
-        numero_columna -= 1
-    return contador
-
-def obtener_conteo_abajo_derecha(fila, columna, color, tablero):
-    """
-Obtiene el conteo de piezas consecutivas en la diagonal inferior derecha desde una posición específica.
-
-Args:
-    fila (int): Índice de la fila inicial.
-    columna (int): Índice de la columna inicial.
-    color (str): Color de la pieza a contar.
-    tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-Returns:
-    int: La cantidad de piezas consecutivas en la diagonal inferior derecha.
-"""
-    contador = 0
-    numero_fila = fila
-    numero_columna = columna
-    while numero_fila < len(tablero) and numero_columna < len(tablero[0]):
-        if contador >= CONECTA:
-            return contador
-        if tablero[numero_fila][numero_columna] == color:
-            contador += 1
-        else:
-            contador = 0
-        numero_fila += 1
-        numero_columna += 1
     return contador
 
 def obtener_conteo(fila, columna, color, tablero):
-    """
-Obtiene el conteo total de piezas consecutivas en todas las direcciones desde una posición específica.
-
-Args:
-    fila (int): Índice de la fila inicial.
-    columna (int): Índice de la columna inicial.
-    color (str): Color de la pieza a contar.
-    tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-Returns:
-    int: El conteo total de piezas consecutivas en todas las direcciones.
-"""
-    direcciones = ['arriba','abajo','izquierda','derecha','arriba_izquierda','arriba_derecha','abajo_izquierda','abajo_derecha']
+    direcciones = ['vertical','horizontal','diagonal']
     for direccion in direcciones:
         funcion = globals()['obtener_conteo_' + direccion]
         conteo = funcion(fila, columna, color, tablero)
@@ -582,31 +264,12 @@ Returns:
     return 0
 
 def obtener_color_de_jugador(jugador):
-    """
-Obtiene el color de la pieza asociado a un jugador específico.
-
-Args:
-    jugador (str): El identificador del jugador (JUGADOR_1 o JUGADOR_2).
-
-Returns:
-    str: El símbolo de la pieza asociado al jugador.
-"""
     color = SIMBOLO_JUGADOR_1
     if jugador == JUGADOR_2:
         color = SIMBOLO_JUGADOR_2
     return color
 
 def comprobar_ganador(jugador, tablero):
-    """
-Comprueba si un jugador ha ganado en el tablero.
-
-Args:
-    jugador (str): El identificador del jugador (JUGADOR_1 o JUGADOR_2).
-    tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-Returns:
-    bool: True si el jugador ha ganado, False en caso contrario.
-"""
     color = obtener_color_de_jugador(jugador)
     for f, fila in enumerate(tablero):
         for c, _ in enumerate(fila):
@@ -616,54 +279,24 @@ Returns:
     return False
 
 def felicitar_jugador(jugador_actual):
-    """
-Felicita al jugador que ha ganado y notifica al otro jugador.
-
-Args:
-    jugador_actual (str): El identificador del jugador que ha ganado (JUGADOR_1 o JUGADOR_2).
-
-Returns:
-    None
-"""
     if jugador_actual == JUGADOR_1:
-        mensaje=(COLOR_CIAN + "enhorabuena! Jugador 1  has ganado 🏆" + RESETEO_COLOR) + "\n" + (COLOR_AMARILLO +  "Jugador 2 has perdido! pipipi pipipi 😱" + RESETEO_COLOR)
+        mensaje=(COLOR_CIAN + "henorabuena! Jugador 1  has ganado 🏆" + RESETEO_COLOR) + "\n" + (COLOR_AMARILLO +  "Jugador 2 has perdido! pipipi pipipi 😱" + RESETEO_COLOR)
         print(mensaje)
     elif jugador_actual == JUGADOR_2:
-        mensaje=(COLOR_CIAN + "enhorabuena! Jugador 2  has ganado 🏆" + RESETEO_COLOR) + "\n" + (COLOR_AMARILLO +  "Jugador 1 has perdido! pipipi pipipi 😱" + RESETEO_COLOR)
+        mensaje=(COLOR_CIAN + "henorabuena! Jugador 2  has ganado 🏆" + RESETEO_COLOR) + "\n" + (COLOR_AMARILLO +  "Jugador 1 has perdido! pipipi pipipi 😱" + RESETEO_COLOR)
         print(mensaje)
 
 def es_empate(tablero):
-    """
-Verifica si el juego ha terminado en empate.
-
-Args:
-    tablero (list): Una lista bidimensional que representa el tablero del juego.
-
-Returns:
-    bool: True si el juego ha terminado en empate, False en caso contrario.
-"""
     for columna in range(len(tablero[0])):
         if obtener_fila_valida_en_columna(columna, tablero) != -1:
             return False
     return True
 
 def indicar_empate():
-    """
-Indica que el juego ha terminado en empate.
-
-Returns:
-    None
-"""
     print( COLOR_NARANJA + "empate...\n"+ COLOR_MAGENTA + "A MIMIR! 😴😴😴😴😴" + RESETEO_COLOR + "\n")
 
 #TODO \\FUNCION PARA ELEGIR SI QUIERES VOLVER A JUGAR//
 def volver_a_jugar():
-    """
-Pregunta al usuario si desea volver a jugar.
-
-Returns:
-    bool: True si el usuario desea volver a jugar, False si no.
-"""
     while True:
         eleccion = input(COLOR_GRIS + "¿Quieres volver a jugar? [s/n]: " + RESETEO_COLOR).lower()
         if eleccion == "s":
@@ -677,12 +310,6 @@ Returns:
 
 #TODO \\FUNCION QUE EJECUTARA EL PROGRAMA EN PYTHON//
 def iniciar_partida():
-    """
-Inicia la partida y permite al jugador decidir si jugar o salir del juego.
-
-Returns:
-    None
-"""
     borrar_consola()
     checkear_version_de_python()
     ejecucion=True
